@@ -11,6 +11,11 @@ const BookSchema = new mongoose.Schema({
         trim: true,
         default: 'Unknown Author'
     },
+    genre: {
+        type: String,
+        trim: true,
+        default: ''
+    },
     status: {
         type: String,
         enum: ['want to read', 'reading', 'finished'],
@@ -20,6 +25,16 @@ const BookSchema = new mongoose.Schema({
         type: Number,
         min: [1, 'Rating must be at least 1'],
         max: [5, 'Rating cannot be more than 5'],
+        default: null
+    },
+    review: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    userId: {
+        type: String,
+        trim: true,
         default: null
     }
 }, {
