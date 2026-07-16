@@ -1,38 +1,72 @@
-const BookModel = require('../models/bookModel');
+const Book = require('../models/bookModel');
 
 // GET /api/books  (optional ?status=finished filter)
-exports.getAllBooks = (req, res) => {
-    const { status } = req.query;
-    const books = BookModel.getAll(status);
-    res.status(200).json(books);
+exports.getAllBooks = async (req, res) => {
+    try {
+        const { status } = req.query;
+        let query = {};
+        if (status) {
+            query.status = status.toLowerCase();
+        }
+        const books = await Book.find(query);
+        res.status(200).json(books);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
 // GET /api/books/:id
-exports.getBookById = (req, res) => {
-    const id = parseInt(req.params.id);
-    const book = BookModel.getById(id);
-    if (!book) return res.status(404).json({ message: 'Book not found' });
-    res.status(200).json(book);
+exports.getBookById = async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.id);
+        if (!book) return res.status(404).json({ message: 'Book not found' });
+        res.status(200).json(book);
+    } catch (err) {
+        if (err.name === 'CastError') {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+        res.status(500).json({ error: err.message });
+    }
 };
 
 // POST /api/books
-exports.createBook = (req, res) => {
-    const newBook = BookModel.create(req.body);
-    res.status(201).json(newBook);
+exports.createBook = async (req, res) => {
+    try {
+        const newBook = await Book.create(req.body);
+        res.status(201).json(newBook);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 };
 
 // PATCH /api/books/:id  — update status or rating
-exports.updateBook = (req, res) => {
-    const id = parseInt(req.params.id);
-    const updatedBook = BookModel.update(id, req.body);
-    if (!updatedBook) return res.status(404).json({ message: 'Book not found' });
-    res.status(200).json(updatedBook);
+exports.updateBook = async (req, res) => {
+    try {
+        const updatedBook = await Book.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+        if (!updatedBook) return res.status(404).json({ message: 'Book not found' });
+        res.status(200).json(updatedBook);
+    } catch (err) {
+        if (err.name === 'CastError') {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+        res.status(400).json({ error: err.message });
+    }
 };
 
 // DELETE /api/books/:id
-exports.deleteBook = (req, res) => {
-    const id = parseInt(req.params.id);
-    const success = BookModel.delete(id);
-    if (!success) return res.status(404).json({ message: 'Book not found' });
-    res.status(204).send();
+exports.deleteBook = async (req, res) => {
+    try {
+        const book = await Book.findByIdAndDelete(req.params.id);
+        if (!book) return res.status(404).json({ message: 'Book not found' });
+        res.status(204).send();
+    } catch (err) {
+        if (err.name === 'CastError') {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+        res.status(500).json({ error: err.message });
+    }
 };

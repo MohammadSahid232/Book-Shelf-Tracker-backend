@@ -1,34 +1,49 @@
-let tasks = [
-    { id: 1, name: 'Review Node.js Tutorial', completed: false },
-    { id: 2, name: 'Implement Task API', completed: true }
-];
+const mongoose = require('mongoose'); 
 
-let nextId = 3;
+const TaskSchema = new mongoose.Schema({ 
+    title: { 
+        type: String, 
+        required: [true, 'Please add a task title'], 
+        trim: true, 
+        maxlength: [100, 'Title cannot be more than 100 characters'] 
+    }, 
+    description: { 
+        type: String, 
+        trim: true, 
+        default: '' 
+    }, 
+    priority: { 
+        type: String, 
+        enum: ['low', 'medium', 'high'], 
+        default: 'medium' 
+    }, 
+    completed: { 
+        type: Boolean, 
+        default: false 
+    } 
+}, { 
+    // Automatically creates 'createdAt' and 'updatedAt' fields 
+    timestamps: true  
+}); 
 
-// Exporting data helper methods
-module.exports = {
-    getAll: () => tasks,
-
-    getById: (id) => tasks.find(t => t.id === id),
-
-    create: (name) => {
-        const newTask = { id: nextId++, name, completed: false };
-        tasks.push(newTask);
-        return newTask;
-    },
-
-    update: (id, updates) => {
-        const task = tasks.find(t => t.id === id);
-        if (!task) return null;
-        if (updates.name !== undefined) task.name = updates.name;
-        if (updates.completed !== undefined) task.completed = updates.completed;
-        return task;
-    },
-
-    delete: (id) => {
-        const index = tasks.findIndex(t => t.id === id);
-        if (index === -1) return false;
-        tasks.splice(index, 1);
-        return true;
+// Configure Schema to serialize virtual 'id' into JSON
+TaskSchema.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret) => {
+        delete ret._id;
+        delete ret.__v;
+        return ret;
     }
-};
+});
+
+// Configure Schema to serialize virtual 'id' into Object
+TaskSchema.set('toObject', {
+    virtuals: true,
+    transform: (doc, ret) => {
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+    }
+});
+
+module.exports = mongoose.model('Task', TaskSchema); 
