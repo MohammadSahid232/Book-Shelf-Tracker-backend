@@ -15,6 +15,9 @@ const bookValidationRules = [
     body('author')
         .optional()
         .trim(),
+    body('genre')
+        .optional()
+        .trim(),
     body('status')
         .optional()
         .isIn(['want to read', 'reading', 'finished'])
@@ -28,7 +31,13 @@ const bookValidationRules = [
                 throw new Error('Rating must be an integer between 1 and 5');
             }
             return true;
-        })
+        }),
+    body('review')
+        .optional()
+        .trim(),
+    body('userId')
+        .optional()
+        .trim()
 ];
 
 // Validation rules for registering a user
