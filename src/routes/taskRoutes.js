@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const taskController = require('../controllers/taskController');
+const verifyToken = require('../middlewares/VerifyToken');
+
+// Protect all task routes with verifyToken middleware
+router.use(verifyToken);
 
 // Define routes and map them to controller methods
 router.get('/', taskController.getAllTasks);

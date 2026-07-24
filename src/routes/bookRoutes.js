@@ -2,8 +2,12 @@ const express = require('express');
 const router = express.Router();
 const bookController = require('../controllers/bookController');
 const { bookRules, validate } = require('../validators/bookValidators');
+const verifyToken = require('../middlewares/VerifyToken');
 
-// GET /api/books - Retrieve all books (with optional ?status=finished filter)
+// Apply verifyToken middleware to protect book routes
+router.use(verifyToken);
+
+// GET /api/books - Retrieve user's books (with optional ?status=finished filter)
 router.get('/', bookController.getAllBooks);
 
 // GET /api/books/:id - Retrieve a book by id
