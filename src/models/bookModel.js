@@ -1,64 +1,96 @@
 const mongoose = require('mongoose');
 
-const BookSchema = new mongoose.Schema({
+const bookSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
     title: {
-        type: String,
-        required: [true, 'Please add a book title'],
-        trim: true
+      type: String,
+      required: [true, 'Book title is required'],
+      trim: true,
     },
     author: {
-        type: String,
-        trim: true,
-        default: 'Unknown Author'
+      type: String,
+      required: [true, 'Author name is required'],
+      trim: true,
     },
     genre: {
-        type: String,
-        trim: true,
-        default: ''
+      type: String,
+      default: 'General',
+      trim: true,
+      index: true,
+    },
+    coverImage: {
+      type: String,
+      default: '',
+    },
+    description: {
+      type: String,
+      default: '',
+    },
+    totalPages: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    readingProgress: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
     },
     status: {
-        type: String,
-        enum: ['want to read', 'reading', 'finished'],
-        default: 'want to read'
+      type: String,
+      enum: ['want to read', 'reading', 'finished'],
+      default: 'want to read',
+      index: true,
     },
     rating: {
-        type: Number,
-        min: [1, 'Rating must be at least 1'],
-        max: [5, 'Rating cannot be more than 5'],
-        default: null
+      type: Number,
+      min: 0,
+      max: 5,
+      default: 0,
     },
     review: {
-        type: String,
-        trim: true,
-        default: ''
+      type: String,
+      default: '',
     },
-    userId: {
-        type: String,
-        trim: true,
-        default: null
-    }
-}, {
-    timestamps: true
+    favorite: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Pre-save middleware to compute reading progress %
+bookSchema.pre('save', function (next) {
+  if (this.totalPages > 0) {
+    this.readingProgress = Math.min(
+      100,
+      Math.round((this.currentPage / this.totalPages) * 100)
+    );
+  } else if (this.status === 'finished') {
+    this.readingProgress = 100;
+  } else {
+    this.readingProgress = 0;
+  }
+  next();
 });
 
-// Configure Schema to serialize virtual 'id' into JSON
-BookSchema.set('toJSON', {
-    virtuals: true,
-    transform: (doc, ret) => {
-        delete ret._id;
-        delete ret.__v;
-        return ret;
-    }
-});
+// Text index for fast search across title, author, and genre
+bookSchema.index({ title: 'text', author: 'text', genre: 'text' });
 
-// Configure Schema to serialize virtual 'id' into Object
-BookSchema.set('toObject', {
-    virtuals: true,
-    transform: (doc, ret) => {
-        delete ret._id;
-        delete ret.__v;
-        return ret;
-    }
-});
-
-module.exports = mongoose.model('Book', BookSchema);
+module.exports = mongoose.model('Book', bookSchema);

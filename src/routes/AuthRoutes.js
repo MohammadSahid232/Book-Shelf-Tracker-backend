@@ -16,15 +16,14 @@ router.post('/register', AuthController.registerUser);
 router.post('/login', AuthController.loginUser);
 
 // Get current user profile (protected)
-router.get('/me', verifyToken, async (req, res) => {
-  try {
-    const user = await UserModel.findById(req.user.id).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
+router.get('/me', verifyToken, AuthController.getProfile);
+router.get('/profile', verifyToken, AuthController.getProfile);
+
+// Update user profile (protected)
+router.put('/profile', verifyToken, AuthController.updateProfile);
+
+// Change password (protected)
+router.put('/change-password', verifyToken, AuthController.changePassword);
 
 // Get all users (admin only, protected)
 router.get('/users', verifyToken, async (req, res) => {
@@ -39,52 +38,40 @@ router.get('/users', verifyToken, async (req, res) => {
   }
 });
 
-// Verify Token (protected) — confirms token is valid and returns decoded user
+// Verify Token (protected)
 router.get('/verify', verifyToken, (req, res) => {
   res.status(200).json({
     message: 'Token is valid',
     user: {
       id: req.user.id,
       email: req.user.email,
-      role: req.user.role
-    }
+      role: req.user.role,
+    },
   });
 });
 
 // Google OAuth routes
 router.get(
   '/google',
-  (req, res, next) => {
-    console.log('\n========================================');
-    console.log('🔑 [Google Auth Console] Initiating Google OAuth Login Request...');
-    console.log('========================================\n');
-    next();
-  },
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 );
 
 router.get(
   '/google/callback',
-  (req, res, next) => {
-    console.log('🔄 [Google Auth Console] Received Callback from Google OAuth Server...');
-    next();
-  },
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
   (req, res) => {
-    console.log(`✅ [Google Auth Console] Successfully authenticated user: ${req.user.email}`);
-
-    // Successful authentication, generate JWT and send it to the client
     const token = jwt.sign(
       { id: req.user._id, email: req.user.email, role: req.user.role },
       process.env.JWT_SECRET || 'supersecretkey',
-      { expiresIn: '1h' }
+      { expiresIn: '7d' }
     );
     const user = {
       id: req.user._id,
       first_name: req.user.first_name,
       last_name: req.user.last_name,
       email: req.user.email,
-      role: req.user.role
+      role: req.user.role,
+      avatar: req.user.avatar,
     };
     res.redirect(`${frontend_url}/oauth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
   }

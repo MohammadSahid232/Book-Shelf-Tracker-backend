@@ -2,10 +2,20 @@ const UserModel = require('../models/UserModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const sanitizeUser = (user) => ({
+  id: user._id,
+  first_name: user.first_name,
+  last_name: user.last_name,
+  email: user.email,
+  role: user.role,
+  avatar: user.avatar,
+  bio: user.bio,
+  favoriteGenres: user.favoriteGenres || [],
+});
+
 const registerUser = async (req, res) => {
-  console.log('auth routes check');
-  const { first_name, last_name, email, password, confirm_password, accept_terms, firstName, lastName } = req.body;
-  
+  const { first_name, last_name, email, password, confirm_password, firstName, lastName } = req.body;
+
   const fName = first_name || firstName || (req.body.name ? req.body.name.split(' ')[0] : '');
   const lName = last_name || lastName || (req.body.name ? req.body.name.split(' ').slice(1).join(' ') : '');
   const pass = password;
@@ -28,29 +38,21 @@ const registerUser = async (req, res) => {
       first_name: fName,
       last_name: lName,
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
-    // Generate JWT token on registration (same as login)
     const token = jwt.sign(
       { id: newUser._id, email: newUser.email, role: newUser.role },
       process.env.JWT_SECRET || 'supersecretkey',
-      { expiresIn: '1h' }
+      { expiresIn: '7d' }
     );
 
     res.status(201).json({
       message: 'User registered successfully',
       token,
-      user: {
-        id: newUser._id,
-        first_name: newUser.first_name,
-        last_name: newUser.last_name,
-        email: newUser.email,
-        role: newUser.role
-      }
+      user: sanitizeUser(newUser),
     });
   } catch (error) {
-    console.error('Error registering user:', error.message);
     res.status(500).json({ message: 'Error registering user', error: error.message });
   }
 };
@@ -75,26 +77,91 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'supersecretkey',
-      { expiresIn: '1h' }
+      { expiresIn: '7d' }
     );
     res.status(200).json({
       message: 'Login successful',
       token,
-      user: {
-        id: user._id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        role: user.role
-      }
+      user: sanitizeUser(user),
     });
   } catch (error) {
-    console.error('Error logging in:', error.message);
     res.status(500).json({ message: 'Error logging in', error: error.message });
+  }
+};
+
+// GET /api/auth/profile
+const getProfile = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const user = await UserModel.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json(sanitizeUser(user));
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching profile', error: error.message });
+  }
+};
+
+// PUT /api/auth/profile
+const updateProfile = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const { first_name, last_name, bio, avatar, favoriteGenres } = req.body;
+    const updateData = {};
+    if (first_name) updateData.first_name = first_name;
+    if (last_name !== undefined) updateData.last_name = last_name;
+    if (bio !== undefined) updateData.bio = bio;
+    if (avatar !== undefined) updateData.avatar = avatar;
+    if (favoriteGenres !== undefined) updateData.favoriteGenres = favoriteGenres;
+
+    const user = await UserModel.findByIdAndUpdate(req.user.id, updateData, {
+      new: true,
+      runValidators: true,
+    }).select('-password');
+
+    res.status(200).json({ message: 'Profile updated successfully', user: sanitizeUser(user) });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating profile', error: error.message });
+  }
+};
+
+// PUT /api/auth/change-password
+const changePassword = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Both current and new passwords are required' });
+    }
+
+    const user = await UserModel.findById(req.user.id);
+    if (!user || !user.password) {
+      return res.status(400).json({ message: 'Cannot change password for OAuth account' });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error changing password', error: error.message });
   }
 };
 
 module.exports = {
   registerUser,
-  loginUser
+  loginUser,
+  getProfile,
+  updateProfile,
+  changePassword,
 };

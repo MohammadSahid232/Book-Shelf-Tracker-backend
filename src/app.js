@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const passport = require('passport');
 const session = require('express-session');
 require('./config/passport');
@@ -7,32 +9,47 @@ require('./config/passport');
 const taskRoutes = require('./routes/taskRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const AuthRoutes = require('./routes/AuthRoutes');
+const aiRoutes = require('./routes/aiRoutes');
+const discoverRoutes = require('./routes/discoverRoutes');
+const noteRoutes = require('./routes/noteRoutes');
+const goalRoutes = require('./routes/goalRoutes');
 const verifyToken = require('./middlewares/VerifyToken');
 
 const app = express();
 
+// Security Headers with Helmet
+app.use(helmet({ crossOriginResourcePolicy: false }));
+
+// Rate Limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300, // limit each IP to 300 requests per window
+  message: { message: 'Too many requests from this IP, please try again later.' },
+});
+app.use(limiter);
+
 // --- CORS Configuration ---
-// Allow requests from both local dev and Netlify production frontend
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   process.env.FRONTEND_URL,
-].filter(Boolean); // remove undefined/empty
+].filter(Boolean);
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // allow non-browser requests (curl, Render health checks) and allowed origins
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS policy: Origin ${origin} not allowed`));
-    }
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy: Origin ${origin} not allowed`));
+      }
+    },
+    credentials: true,
+  })
+);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use(
   session({
@@ -46,18 +63,36 @@ app.use(passport.initialize());
 
 // Root health-check route
 app.get('/', (req, res) => {
-  res.json({ message: 'BookShelf Tracker Backend API is running successfully!' });
+  res.json({
+    name: 'BookShelf AI Backend API',
+    status: 'online',
+    version: '2.0.0',
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// Public Auth routes (Register, Login, Google OAuth)
+// Auth routes (Public & Protected)
 app.use('/auth', AuthRoutes);
+app.use('/api/auth', AuthRoutes);
 
-// Protected Task routes
+// Protected Core Modules
+app.use('/api/books', verifyToken, bookRoutes);
+app.use('/books', verifyToken, bookRoutes);
+
+app.use('/api/ai', verifyToken, aiRoutes);
+app.use('/api/discover', verifyToken, discoverRoutes);
+app.use('/api/notes', verifyToken, noteRoutes);
+app.use('/api/goals', verifyToken, goalRoutes);
+
 app.use('/task', verifyToken, taskRoutes);
 app.use('/tasks', verifyToken, taskRoutes);
 
-// Protected Book routes
-app.use('/api/books', verifyToken, bookRoutes);
-app.use('/books', verifyToken, bookRoutes);
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err.stack || err.message);
+  res.status(500).json({
+    message: err.message || 'Internal Server Error',
+  });
+});
 
 module.exports = app;

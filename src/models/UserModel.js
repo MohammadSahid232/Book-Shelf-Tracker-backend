@@ -6,39 +6,52 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      maxlength: 50
+      maxlength: 50,
     },
     last_name: {
       type: String,
       required: false,
       trim: true,
       maxlength: 50,
-      default: ''
+      default: '',
     },
     email: {
       type: String,
       required: true,
       unique: true,
       trim: true,
-      lowercase: true
+      lowercase: true,
     },
     password: {
       type: String,
-      required: false
+      required: false,
     },
     googleId: {
       type: String,
       required: false,
-      default: null
+      default: null,
     },
     role: {
       type: String,
       enum: ['user', 'admin'],
-      default: 'user'
-    }
+      default: 'user',
+    },
+    avatar: {
+      type: String,
+      default: '',
+    },
+    bio: {
+      type: String,
+      default: '',
+      maxlength: 300,
+    },
+    favoriteGenres: [{
+      type: String,
+      trim: true,
+    }],
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
