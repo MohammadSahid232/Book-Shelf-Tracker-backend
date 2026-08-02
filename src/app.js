@@ -6,29 +6,41 @@ const passport = require('passport');
 const session = require('express-session');
 require('./config/passport');
 
-const taskRoutes = require('./routes/taskRoutes');
-const bookRoutes = require('./routes/bookRoutes');
-const AuthRoutes = require('./routes/AuthRoutes');
-const aiRoutes = require('./routes/aiRoutes');
-const discoverRoutes = require('./routes/discoverRoutes');
-const noteRoutes = require('./routes/noteRoutes');
-const goalRoutes = require('./routes/goalRoutes');
+// ── Existing Routes ────────────────────────────────────────────────────────────
+const taskRoutes        = require('./routes/taskRoutes');
+const bookRoutes        = require('./routes/bookRoutes');
+const AuthRoutes        = require('./routes/AuthRoutes');
+const aiRoutes          = require('./routes/aiRoutes');
+const discoverRoutes    = require('./routes/discoverRoutes');
+const noteRoutes        = require('./routes/noteRoutes');
+const goalRoutes        = require('./routes/goalRoutes');
+
+// ── New Platform Routes ────────────────────────────────────────────────────────
+const libraryRoutes      = require('./routes/libraryRoutes');
+const shelfRoutes        = require('./routes/shelfRoutes');
+const reviewRoutes       = require('./routes/reviewRoutes');
+const bookmarkRoutes     = require('./routes/bookmarkRoutes');
+const collectionRoutes   = require('./routes/collectionRoutes');
+const achievementRoutes  = require('./routes/achievementRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const downloadRoutes     = require('./routes/downloadRoutes');
+const adminRoutes        = require('./routes/adminRoutes');
+
 const verifyToken = require('./middlewares/VerifyToken');
 
 const app = express();
 
-// Security Headers with Helmet
+// ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: false }));
 
-// Rate Limiter
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // limit each IP to 300 requests per window
-  message: { message: 'Too many requests from this IP, please try again later.' },
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  message: { message: 'Too many requests, please try again later.' },
 });
 app.use(limiter);
 
-// --- CORS Configuration ---
+// ── CORS ──────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -58,41 +70,54 @@ app.use(
     saveUninitialized: false,
   })
 );
-
 app.use(passport.initialize());
 
-// Root health-check route
+// ── Health Check ──────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({
-    name: 'BookShelf AI Backend API',
+    name: 'BookShelf AI — Digital Library Platform API',
     status: 'online',
-    version: '2.0.0',
+    version: '3.0.0',
     timestamp: new Date().toISOString(),
+    endpoints: [
+      '/auth', '/api/auth',
+      '/api/books', '/api/library', '/api/shelf',
+      '/api/reviews', '/api/bookmarks', '/api/collections',
+      '/api/achievements', '/api/notifications', '/api/downloads',
+      '/api/admin', '/api/ai', '/api/discover',
+    ],
   });
 });
 
-// Auth routes (Public & Protected)
+// ── Auth Routes (Public) ───────────────────────────────────────────────────────
 app.use('/auth', AuthRoutes);
 app.use('/api/auth', AuthRoutes);
 
-// Protected Core Modules
-app.use('/api/books', verifyToken, bookRoutes);
-app.use('/books', verifyToken, bookRoutes);
+// ── Public / Optional-Auth Routes ─────────────────────────────────────────────
+app.use('/api/library', libraryRoutes);        // Public library catalog
 
-app.use('/api/ai', verifyToken, aiRoutes);
-app.use('/api/discover', verifyToken, discoverRoutes);
-app.use('/api/notes', verifyToken, noteRoutes);
-app.use('/api/goals', verifyToken, goalRoutes);
+// ── Authenticated Routes ───────────────────────────────────────────────────────
+app.use('/api/books',         verifyToken, bookRoutes);
+app.use('/books',             verifyToken, bookRoutes);
+app.use('/api/shelf',         verifyToken, shelfRoutes);
+app.use('/api/reviews',       verifyToken, reviewRoutes);
+app.use('/api/bookmarks',     verifyToken, bookmarkRoutes);
+app.use('/api/collections',   verifyToken, collectionRoutes);
+app.use('/api/achievements',  verifyToken, achievementRoutes);
+app.use('/api/notifications', verifyToken, notificationRoutes);
+app.use('/api/downloads',     verifyToken, downloadRoutes);
+app.use('/api/admin',         verifyToken, adminRoutes);  // isAdmin applied inside adminRoutes
+app.use('/api/ai',            verifyToken, aiRoutes);
+app.use('/api/discover',      verifyToken, discoverRoutes);
+app.use('/api/notes',         verifyToken, noteRoutes);
+app.use('/api/goals',         verifyToken, goalRoutes);
+app.use('/task',              verifyToken, taskRoutes);
+app.use('/tasks',             verifyToken, taskRoutes);
 
-app.use('/task', verifyToken, taskRoutes);
-app.use('/tasks', verifyToken, taskRoutes);
-
-// Global Error Handler
+// ── Global Error Handler ───────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Unhandled Error:', err.stack || err.message);
-  res.status(500).json({
-    message: err.message || 'Internal Server Error',
-  });
+  res.status(500).json({ message: err.message || 'Internal Server Error' });
 });
 
 module.exports = app;
