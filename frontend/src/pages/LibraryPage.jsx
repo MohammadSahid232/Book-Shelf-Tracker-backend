@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Search, BookOpen, Star, Download, TrendingUp, Sparkles,
-  ChevronRight, Heart, Eye, Clock, Flame, Zap
+  ChevronRight, Heart, Eye, Clock, Flame, Zap, Plus
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -134,7 +134,7 @@ const FeaturedHero = ({ books }) => {
 
 // ── Main Library Page ──────────────────────────────────────────────────────────
 export default function LibraryPage() {
-  const { getAuthHeaders, BACKEND_URL } = useAuth();
+  const { getAuthHeaders, BACKEND_URL, user } = useAuth();
   const navigate = useNavigate();
   const [sections, setSections] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -225,11 +225,19 @@ export default function LibraryPage() {
           <div className="text-6xl">📚</div>
           <h2 className="text-2xl font-black text-slate-800 dark:text-white">Library is Empty</h2>
           <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-            No books in the library yet. Admin can add books from the Admin Dashboard.
+            {user?.role === 'admin'
+              ? 'No books yet. Add the first book to the library!'
+              : 'No books in the library yet. Check back soon!'}
           </p>
-          <Link to="/admin/books" className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-colors">
-            <Sparkles className="w-4 h-4" /> Go to Admin
-          </Link>
+          {user?.role === 'admin' ? (
+            <Link to="/admin/dashboard" className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-colors">
+              <Plus className="w-4 h-4" /> Add Books
+            </Link>
+          ) : (
+            <button onClick={() => navigate('/search')} className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-colors">
+              <Search className="w-4 h-4" /> Search Books
+            </button>
+          )}
         </motion.div>
       )}
     </div>

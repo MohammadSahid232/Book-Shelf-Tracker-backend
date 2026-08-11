@@ -19,8 +19,6 @@ import ReaderPage from './pages/ReaderPage';
 import SearchPage from './pages/SearchPage';
 import MyLibraryPage from './pages/MyLibraryPage';
 import CollectionsPage from './pages/CollectionsPage';
-import AchievementsPage from './pages/AchievementsPage';
-import CommunityPage from './pages/CommunityPage';
 import AdminDashboard from './pages/AdminDashboard';
 
 import AdminLayout from './layouts/AdminLayout';
@@ -58,10 +56,9 @@ function App() {
               <Route path="/search" element={<SearchPage />} />
               <Route path="/my-library" element={<MyLibraryPage />} />
               <Route path="/collections" element={<CollectionsPage />} />
-              <Route path="/achievements" element={<AchievementsPage />} />
-              <Route path="/community" element={<CommunityPage />} />
               <Route path="/ai-hub" element={<AiHubPage />} />
               <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/tasks" element={<TaskList />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/books" element={<BooksPage />} />
               <Route path="/dashboard" element={<Dashboard />} />
@@ -76,7 +73,6 @@ function App() {
           </Route>
 
           {/* Fallback redirects */}
-          <Route path="/tasks" element={<Navigate to="/admin/tasks" replace />} />
           <Route path="*" element={<Navigate to="/library" replace />} />
         </Routes>
       </BrowserRouter>

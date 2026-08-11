@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Search, BookOpen, Plus, Sparkles, Star, ExternalLink, Loader2 } from 'lucide-react';
+import { Search, BookOpen, Plus, Sparkles, Star, Download, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function DiscoverPage() {
+  const navigate = useNavigate();
   const { getAuthHeaders, BACKEND_URL } = useAuth();
   const [query, setQuery] = useState('atomic habits');
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [addingId, setAddingId] = useState(null);
+  const [addedBooks, setAddedBooks] = useState({});
 
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
@@ -17,19 +20,32 @@ export default function DiscoverPage() {
 
     setLoading(true);
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/discover/search?q=${encodeURIComponent(query)}`);
+      const response = await axios.get(
+        `${BACKEND_URL}/api/discover/search?q=${encodeURIComponent(query)}`,
+        { headers: getAuthHeaders() }
+      );
       setBooks(response.data.books || []);
       if ((response.data.books || []).length === 0) {
         toast.error('No books found for your query.');
       }
     } catch (err) {
-      toast.error('Error fetching books from Google Books');
+      toast.error(err.response?.data?.message || 'Error fetching books from Google Books');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddToLibrary = async (book) => {
+  const handleAddToLibrary = async (book, redirectAction = null) => {
+    if (addedBooks[book.id]) {
+      const savedBookId = addedBooks[book.id];
+      if (redirectAction === 'read') {
+        navigate(`/read/${savedBookId}`);
+      } else if (redirectAction === 'download') {
+        window.open(`${BACKEND_URL}/api/downloads/file/${savedBookId}.pdf`, '_blank');
+      }
+      return savedBookId;
+    }
+
     setAddingId(book.id);
     try {
       const headers = getAuthHeaders();
@@ -39,14 +55,32 @@ export default function DiscoverPage() {
         genre: book.genre || 'General',
         coverImage: book.coverImage,
         description: book.description,
-        totalPages: book.totalPages || 0,
+        totalPages: book.totalPages || 250,
         status: 'want to read',
+        downloadAllowed: true,
       };
 
-      await axios.post(`${BACKEND_URL}/api/books`, payload, { headers });
+      const response = await axios.post(`${BACKEND_URL}/api/books`, payload, { headers });
+      const createdBook = response.data;
+      const createdId = createdBook._id || createdBook.id;
+
+      // Also add to the user's reading shelf so it appears in My Reading Shelf
+      try {
+        await axios.post(`${BACKEND_URL}/api/shelf/${createdId}`, { status: 'want to read' }, { headers });
+      } catch (_) {} // Ignore if already on shelf
+
+      setAddedBooks((prev) => ({ ...prev, [book.id]: createdId }));
       toast.success(`"${book.title}" added to your library! 📚`);
+
+      const token = localStorage.getItem('token') || '';
+      if (redirectAction === 'read') {
+        navigate(`/read/${createdId}`);
+      } else if (redirectAction === 'download') {
+        window.open(`${BACKEND_URL}/api/downloads/file/${createdId}.pdf?token=${token}`, '_blank');
+      }
+      return createdId;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to add book');
+      toast.error(err.response?.data?.message || 'Failed to add book to library');
     } finally {
       setAddingId(null);
     }
@@ -55,15 +89,15 @@ export default function DiscoverPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-neutral-900 text-slate-900 dark:text-slate-100 p-4 md:p-8 space-y-8 transition-colors">
       {/* Search Header Banner */}
-      <div className="bg-linear-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-3xl p-8 text-white shadow-xl">
+      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-3xl p-8 text-white shadow-xl">
         <div className="max-w-2xl">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold mb-3">
             <Sparkles className="w-4 h-4 text-purple-300 fill-purple-300" />
-            Powered by Google Books API
+            Powered by Digital Book Engine
           </span>
           <h1 className="text-3xl font-extrabold tracking-tight">Discover Millions of Books Online</h1>
           <p className="text-indigo-200 text-sm mt-1">
-            Search titles, preview cover artwork, read descriptions, and import to your shelf with 1-click.
+            Search titles, preview cover artwork, read descriptions, read online, and download PDFs in 1-click.
           </p>
 
           <form onSubmit={handleSearch} className="mt-6 flex items-center gap-2">
@@ -105,9 +139,9 @@ export default function DiscoverPage() {
         ) : books.length === 0 ? (
           <div className="bg-white dark:bg-neutral-800/90 rounded-3xl p-12 text-center border border-slate-200 dark:border-neutral-700">
             <BookOpen className="w-12 h-12 text-slate-300 dark:text-neutral-600 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-slate-800 dark:text-white">Search Google Books</h3>
+            <h3 className="text-base font-bold text-slate-800 dark:text-white">Search Digital Books</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Enter a search keyword above to explore books online.
+              Enter a search keyword above to explore and read books online.
             </p>
           </div>
         ) : (
@@ -146,21 +180,43 @@ export default function DiscoverPage() {
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-neutral-700 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400">{b.totalPages} Pages</span>
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-neutral-700 flex flex-col gap-2">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                    <span>{b.totalPages || 250} Pages</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">PDF Ready</span>
+                  </div>
 
-                  <button
-                    onClick={() => handleAddToLibrary(b)}
-                    disabled={addingId === b.id}
-                    className="px-3 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-xs flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    {addingId === b.id ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Plus className="w-3.5 h-3.5" />
-                    )}
-                    Add to Library
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleAddToLibrary(b, 'read')}
+                      className="flex-1 py-1.5 px-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      Read
+                    </button>
+
+                    <button
+                      onClick={() => handleAddToLibrary(b, 'download')}
+                      className="py-1.5 px-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 rounded-xl transition-all border border-emerald-200 dark:border-emerald-800 flex items-center gap-1"
+                      title="Download PDF"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      PDF
+                    </button>
+
+                    <button
+                      onClick={() => handleAddToLibrary(b)}
+                      disabled={addingId === b.id}
+                      className="py-1.5 px-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-neutral-700 hover:bg-slate-200 rounded-xl transition-all flex items-center gap-1 disabled:opacity-50"
+                      title="Add to Library"
+                    >
+                      {addingId === b.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Plus className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

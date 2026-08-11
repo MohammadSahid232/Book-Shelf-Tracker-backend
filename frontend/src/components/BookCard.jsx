@@ -6,9 +6,9 @@ export default function BookCard({ book, onEdit, onDelete, onToggleFavorite, onS
   const progress = book.readingProgress || (book.totalPages > 0 ? Math.round((book.currentPage / book.totalPages) * 100) : (isFinished ? 100 : 0));
 
   const statusColors = {
-    'want to read': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800',
-    'reading': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
-    'finished': 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
+    'want to read': 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/80 dark:text-blue-200 dark:border-blue-700 font-extrabold',
+    'reading': 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700 font-extrabold',
+    'finished': 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-700 font-extrabold',
   };
 
   const statusLabels = {
@@ -39,9 +39,9 @@ export default function BookCard({ book, onEdit, onDelete, onToggleFavorite, onS
             </div>
           )}
 
-          {/* Genre Badge */}
+          {/* High-Visibility Single Color Genre Badge */}
           {book.genre && (
-            <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-900/80 text-white rounded-lg backdrop-blur-md shadow-xs">
+            <span className="absolute top-2.5 left-2.5 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider bg-indigo-600 text-white rounded-lg shadow-md border border-indigo-400/40 backdrop-blur-md">
               {book.genre}
             </span>
           )}
@@ -50,7 +50,7 @@ export default function BookCard({ book, onEdit, onDelete, onToggleFavorite, onS
           <button
             onClick={() => onToggleFavorite && onToggleFavorite(book._id || book.id, !book.favorite)}
             title={book.favorite ? 'Remove Favorite' : 'Mark as Favorite'}
-            className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/80 dark:bg-neutral-900/80 text-rose-500 hover:scale-110 transition-transform shadow-md backdrop-blur-md"
+            className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/90 dark:bg-neutral-900/90 text-rose-500 hover:scale-110 transition-transform shadow-md border border-slate-200/60 dark:border-neutral-700 backdrop-blur-md"
           >
             <Heart className={`w-4 h-4 ${book.favorite ? 'fill-rose-500 text-rose-500' : 'text-slate-400 hover:text-rose-500'}`} />
           </button>
@@ -67,10 +67,10 @@ export default function BookCard({ book, onEdit, onDelete, onToggleFavorite, onS
         {/* Progress Bar & Status */}
         <div className="mt-3 space-y-2">
           <div className="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-400">
-            <span className={`inline-flex px-2 py-0.5 rounded-md border text-[10px] uppercase tracking-wider font-extrabold ${statusColors[book.status] || ''}`}>
+            <span className={`inline-flex px-2 py-0.5 rounded-md border text-[10px] uppercase tracking-wider ${statusColors[book.status] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
               {statusLabels[book.status] || book.status}
             </span>
-            <span>{progress}% Completed</span>
+            <span className="text-slate-700 dark:text-slate-300 font-extrabold">{progress}% Completed</span>
           </div>
 
           <div className="w-full bg-slate-100 dark:bg-neutral-700/60 rounded-full h-1.5 overflow-hidden">
@@ -83,7 +83,7 @@ export default function BookCard({ book, onEdit, onDelete, onToggleFavorite, onS
           </div>
 
           {book.totalPages > 0 && (
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-between">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold flex items-center justify-between">
               <span>Pages: {book.currentPage || 0} / {book.totalPages}</span>
             </p>
           )}
@@ -119,7 +119,7 @@ export default function BookCard({ book, onEdit, onDelete, onToggleFavorite, onS
         <select
           value={book.status || 'want to read'}
           onChange={(e) => onStatusChange && onStatusChange(book._id || book.id, e.target.value)}
-          className="text-xs font-semibold bg-slate-50 dark:bg-neutral-700/50 border border-slate-200 dark:border-neutral-700 text-slate-700 dark:text-slate-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+          className="text-xs font-bold bg-slate-100 dark:bg-neutral-700 border border-slate-300 dark:border-neutral-600 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
         >
           <option value="want to read">Want to Read</option>
           <option value="reading">Reading</option>
@@ -131,27 +131,27 @@ export default function BookCard({ book, onEdit, onDelete, onToggleFavorite, onS
             <button
               onClick={() => onOpenNotes(book)}
               title="Open Notes"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors"
             >
               <NotebookPen className="w-4 h-4" />
             </button>
           )}
 
-          {onEdit && isAdmin && (
+          {onEdit && (
             <button
               onClick={() => onEdit(book)}
               title="Edit Book"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
             >
               <Edit3 className="w-4 h-4" />
             </button>
           )}
 
-          {onDelete && isAdmin && (
+          {onDelete && (
             <button
               onClick={() => onDelete(book._id || book.id)}
               title="Delete Book"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
             >
               <Trash2 className="w-4 h-4" />
             </button>

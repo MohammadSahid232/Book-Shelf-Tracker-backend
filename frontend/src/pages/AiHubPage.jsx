@@ -55,7 +55,7 @@ export default function AiHubPage() {
         description: b.reason,
         status: 'want to read',
       };
-      await axios.post(`${BACKEND_URL}/api/books`, payload, { headers });
+      await axios.post(`${BACKEND_URL}/api/shelf/add`, payload, { headers });
       toast.success(`"${b.title}" added to your shelf! 📚`);
     } catch (err) {
       toast.error('Failed to add book');
@@ -73,9 +73,9 @@ export default function AiHubPage() {
             <Sparkles className="w-4 h-4 text-purple-400 fill-purple-400" />
             Gemini AI Recommendation Engine
           </span>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight">Personalized AI Literary Assistant</h1>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight">Recommend Your Next Book</h1>
           <p className="text-purple-200 text-sm mt-1">
-            Analyzing your reading history, ratings, and genre preferences to curate 5 books you will love.
+            Analyzing your finished books and ratings to recommend the next 3 books you should read.
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export default function AiHubPage() {
           className="mt-6 sm:mt-0 relative z-10 px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-2xl transition-all shadow-lg flex items-center gap-2 text-xs disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${loadingRecs ? 'animate-spin' : ''}`} />
-          Refresh Recommendations
+          Recommend Next Book
         </button>
       </div>
 
@@ -138,7 +138,7 @@ export default function AiHubPage() {
       <div className="space-y-4">
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-purple-500" />
-          Recommended For You
+          Recommended Next Books
         </h2>
 
         {loadingRecs ? (
@@ -153,7 +153,7 @@ export default function AiHubPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {recommendations.map((b, idx) => (
+            {recommendations.slice(0, 3).map((b, idx) => (
               <div
                 key={idx}
                 className="bg-white dark:bg-neutral-800/90 border border-purple-200/60 dark:border-purple-900/40 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:shadow-xl transition-all relative overflow-hidden"

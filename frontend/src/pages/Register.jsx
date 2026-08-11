@@ -38,18 +38,27 @@ export default function Register() {
   };
 
   return (
-    <main className="bg-gray-50 px-4 md:px-8 dark:bg-neutral-900 min-h-screen flex items-center justify-center">
+    <main
+      className="px-4 md:px-8 min-h-screen flex items-center justify-center py-12 transition-colors"
+      style={{ backgroundColor: 'var(--bg)', color: 'var(--text-primary)' }}
+    >
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-lg mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-8 h-8">
+          <div
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg mb-4"
+            style={{ backgroundColor: 'var(--primary)', color: 'var(--text-inverse)' }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Book Shelf Tracker</h1>
+          <h1 className="text-2xl font-extrabold" style={{ color: 'var(--text-primary)' }}>Book Shelf Tracker</h1>
         </div>
 
-        <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm md:p-8 dark:bg-neutral-800 dark:border-neutral-700">
+        <div
+          className="p-6 rounded-2xl border shadow-sm md:p-8"
+          style={{ backgroundColor: 'var(--bg-raised)', borderColor: 'var(--line)' }}
+        >
           <h2 className="text-slate-900 text-center text-2xl font-bold dark:text-slate-50 mb-2">Create account</h2>
           <p className="text-center text-sm text-slate-500 dark:text-slate-400 mb-8">Join to track your reading journey</p>
 

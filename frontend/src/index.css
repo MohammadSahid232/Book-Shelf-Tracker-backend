@@ -1,48 +1,266 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 @plugin "daisyui";
 
 /* =========================================================
-   BOOKSHELF APP — THEME DESIGN SYSTEM
-   Light: soft blue-white + deep blue accents
-   Dark:  deep navy + bright blue accents
+   SHELFWISE DESIGN SYSTEM — READING ROOM
+   Library card-catalog / dust-jacket aesthetic
    ========================================================= */
 
-/* --- Light Theme Defaults --- */
-:root {
-  --color-bg:           #f0f4ff;
-  --color-surface:      #ffffff;
-  --color-border:       #c7d4f0;
-  --color-text:         #1e2a4a;
-  --color-text-muted:   #64748b;
-  --color-primary:      #1d4ed8;
-  --color-primary-hover:#1e40af;
-  --color-secondary:    #3b82f6;
-  --color-accent:       #60a5fa;
-  --color-badge-bg:     #dbeafe;
-  --color-badge-text:   #1d4ed8;
-  --color-card-hover:   #eff6ff;
-  --color-star:         #f59e0b;
-  --color-danger:       #ef4444;
-  --color-danger-hover: #fef2f2;
+/* ── Light Mode Token Layer ──────────────────────────────── */
+:root,
+html[data-theme="reading-room"][data-mode="light"],
+html[data-mode="light"] {
+  --bg:              #F1E9D8;
+  --bg-raised:       #F8F3E7;
+  --ink:             #1B2A41;
+  --ink-soft:        #445064;
+  
+  --brass:           #B08D57;
+  --brass-soft:      #D8C6A1;
+  --moss:            #5F7A62;
+  --rust:            #A64B3F;
+  --line:            #D9CBAE;
+  
+  --shadow:          0 10px 30px rgba(27, 42, 65, 0.08);
+  
+  --text-primary:    #1B2A41;
+  --text-secondary:  #445064;
+  --text-muted:      #6C7689;
+  --text-inverse:    #FFFFFF;
+  
+  --primary:         #A64B3F;
+  --primary-hover:   #8B3E34;
+  --primary-soft:    #E8C4BC;
+  
+  --success:         #5F7A62;
+  --success-soft:    #D9E3D6;
+  
+  --warning:         #B08D57;
+  --warning-soft:    #E8D9BC;
+  
+  --error:           #A64B3F;
+  --error-soft:      #E8C4BC;
+  
+  --focus:           #3E7053;
+  
+  --disabled-bg:     rgba(27, 42, 65, 0.04);
+  --disabled-text:   #A0A6B0;
+
+  /* Legacy variable mappings for backward compatibility */
+  --color-bg:            var(--bg);
+  --color-surface:       var(--bg-raised);
+  --color-border:        var(--line);
+  --color-text:          var(--text-primary);
+  --color-text-muted:    var(--text-secondary);
+  --color-primary:       var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary:     var(--brass);
+  --color-accent:        var(--moss);
+  --color-badge-bg:      var(--primary-soft);
+  --color-badge-text:    var(--primary);
+  --color-card-hover:    #ECE3D0;
+  --color-star:          #B08D57;
+  --color-danger:        #A64B3F;
+  --color-danger-hover:  #E8C4BC;
 }
 
-/* --- Dark (Blue) Theme --- */
-.dark {
-  --color-bg:           #0b1120;
-  --color-surface:      #111827;
-  --color-border:       #1e3a5f;
-  --color-text:         #e2e8f0;
-  --color-text-muted:   #94a3b8;
-  --color-primary:      #3b82f6;
-  --color-primary-hover:#2563eb;
-  --color-secondary:    #60a5fa;
-  --color-accent:       #93c5fd;
-  --color-badge-bg:     #1e3a5f;
-  --color-badge-text:   #93c5fd;
-  --color-card-hover:   #1a2744;
-  --color-star:         #fbbf24;
-  --color-danger:       #f87171;
-  --color-danger-hover: #1f1010;
+/* ── Dark Mode Token Layer ───────────────────────────────── */
+html.dark,
+html[data-theme="reading-room"][data-mode="dark"],
+html[data-mode="dark"] {
+  --bg:              #0E1421;
+  --bg-raised:       #151C2A;
+  --ink:             #ECE7D6;
+  --ink-soft:        #ACB4C4;
+  
+  --brass:           #C9A86A;
+  --brass-soft:      #6E5C3A;
+  --moss:            #6D8A6F;
+  --rust:            #C25A48;
+  --line:            #2A3344;
+  
+  --shadow:          0 12px 32px rgba(0, 0, 0, 0.45);
+  
+  --text-primary:    #ECE7D6;
+  --text-secondary:  #ACB4C4;
+  --text-muted:      #8E98A8;
+  --text-inverse:    #0E1421;
+  
+  --primary:         #C25A48;
+  --primary-hover:   #D96B58;
+  --primary-soft:    #512A24;
+  
+  --success:         #6D8A6F;
+  --success-soft:    #263A2B;
+  
+  --warning:         #C9A86A;
+  --warning-soft:    #4A3B22;
+  
+  --error:           #D64534;
+  --error-soft:      #4A2420;
+  
+  --focus:           #6BB58A;
+  
+  --disabled-bg:     rgba(255, 255, 255, 0.06);
+  --disabled-text:   #6E7480;
+
+  /* Legacy variable mappings for backward compatibility */
+  --color-bg:            var(--bg);
+  --color-surface:       var(--bg-raised);
+  --color-border:        var(--line);
+  --color-text:          var(--text-primary);
+  --color-text-muted:    var(--text-secondary);
+  --color-primary:       var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary:     var(--brass);
+  --color-accent:        var(--moss);
+  --color-badge-bg:      var(--primary-soft);
+  --color-badge-text:    var(--primary);
+  --color-card-hover:    #1C2536;
+  --color-star:          #C9A86A;
+  --color-danger:        #D64534;
+  --color-danger-hover:  #4A2420;
+}
+
+/* =========================================================
+   GLOBAL THEME APPLIER & SMOOTH TRANSITIONS
+   ========================================================= */
+body,
+main,
+section,
+nav,
+aside,
+footer,
+header,
+input,
+textarea,
+select,
+button,
+div.bg-slate-50,
+div.bg-white,
+div.bg-neutral-900,
+div.bg-neutral-800,
+.card,
+.book-card {
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+/* Base Body Application */
+body {
+  background-color: var(--bg) !important;
+  color: var(--text-primary) !important;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Global Focus States */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* ── Universal Overrides for Entire App ──────────────────── */
+/* Backgrounds */
+.bg-gray-50,
+.bg-gray-100,
+.bg-gray-200,
+.bg-slate-50,
+.bg-slate-100,
+.bg-slate-100\/70,
+.bg-slate-100\/80,
+.bg-slate-200,
+.bg-neutral-900,
+.bg-neutral-900\/80,
+.bg-neutral-950 {
+  background-color: var(--bg) !important;
+}
+
+.bg-white,
+.bg-white\/60,
+.bg-white\/70,
+.bg-white\/80,
+.bg-white\/90,
+.bg-neutral-800,
+.bg-neutral-800\/70,
+.bg-neutral-800\/80,
+.bg-neutral-800\/90 {
+  background-color: var(--bg-raised) !important;
+  box-shadow: var(--shadow);
+}
+
+/* Borders */
+.border-slate-100,
+.border-slate-200,
+.border-slate-200\/60,
+.border-slate-200\/70,
+.border-neutral-700,
+.border-neutral-700\/60,
+.border-neutral-700\/70,
+.border-neutral-800 {
+  border-color: var(--line) !important;
+}
+
+/* Primary Action Buttons */
+.bg-indigo-600,
+.bg-indigo-700 {
+  background-color: var(--primary) !important;
+  color: var(--text-inverse) !important;
+}
+
+.bg-indigo-600:hover,
+.bg-indigo-700:hover,
+.hover\:bg-indigo-700:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+/* Text Colors */
+.text-slate-900,
+.text-slate-800,
+.text-white {
+  color: var(--text-primary) !important;
+}
+
+.text-slate-600,
+.text-slate-500,
+.text-slate-400,
+.text-neutral-400,
+.text-neutral-500 {
+  color: var(--text-secondary) !important;
+}
+
+.text-indigo-600,
+.text-indigo-500,
+.dark\:text-indigo-400 {
+  color: var(--primary) !important;
+}
+
+/* Soft Badges */
+.bg-indigo-50,
+.bg-indigo-100,
+.dark\:bg-indigo-950\/30,
+.dark\:bg-indigo-900\/40 {
+  background-color: var(--primary-soft) !important;
+  color: var(--primary) !important;
+}
+
+/* Reading Room Dust-Jacket Book Spine */
+.book-cover {
+  position: relative;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brass) 35%, var(--bg-raised)), var(--primary));
+}
+
+.book-cover::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: color-mix(in srgb, var(--ink) 30%, transparent);
 }
 
 /* =========================================================

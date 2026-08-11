@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  BookOpen, Search, BookMarked, Folder, Trophy, Users,
+  BookOpen, Search, BookMarked, Folder, Users,
   Sparkles, ShieldCheck, LogOut, CheckSquare, LayoutDashboard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -15,22 +15,21 @@ export default function Sidebar({ isOpen, onClose }) {
     await logout();
   };
 
-  const navItems = [
+  let navItems = [
     { to: '/library', label: 'Digital Library', icon: <BookOpen className="w-4 h-4" /> },
     { to: '/search', label: 'Search Books', icon: <Search className="w-4 h-4" /> },
     { to: '/my-library', label: 'My Reading Shelf', icon: <BookMarked className="w-4 h-4" /> },
     { to: '/collections', label: 'Collections', icon: <Folder className="w-4 h-4" /> },
-    { to: '/achievements', label: 'Achievements', icon: <Trophy className="w-4 h-4 text-amber-500" /> },
-    { to: '/community', label: 'Community Lists', icon: <Users className="w-4 h-4" /> },
-    { to: '/ai-hub', label: 'AI Recommendations', icon: <Sparkles className="w-4 h-4 text-purple-500" /> },
+    { to: '/tasks', label: 'Task Manager', icon: <CheckSquare className="w-4 h-4 text-blue-500" /> },
+    { to: '/ai-hub', label: 'Recommend Next Book', icon: <Sparkles className="w-4 h-4 text-purple-500" /> },
     { to: '/discover', label: 'Google Books', icon: <Search className="w-4 h-4" /> },
   ];
 
   if (user?.role === 'admin') {
-    navItems.unshift(
+    navItems = [
       { to: '/admin/dashboard', label: 'Admin Dashboard', icon: <ShieldCheck className="w-4 h-4 text-red-500" /> },
-      { to: '/admin/tasks', label: 'Task Manager', icon: <CheckSquare className="w-4 h-4" /> }
-    );
+      { to: '/admin/tasks', label: 'Task Manager', icon: <CheckSquare className="w-4 h-4" /> },
+    ];
   }
 
   return (

@@ -11,7 +11,7 @@
 ## ✨ Key Features
 
 ### 🤖 1. Gemini AI Book Recommendations & Insights
-- **Smart Recommendations (`POST /api/ai/recommend`)**: Analyzes reading history, ratings, favorite genres, and user reviews using Google Gemini AI to generate 5 personalized recommendations with match confidence score, difficulty rating, and estimated reading time.
+- **Smart Recommendations (`POST /api/ai/recommend`)**: Analyzes finished books, ratings, favorite genres, and reviews using Google Gemini AI to generate 3 personalized next-book recommendations with reasons, confidence score, difficulty rating, and estimated reading time.
 - **Reading Habits & Insights (`GET /api/ai/insights`)**: Calculates reading speed, reading streak, monthly completion summaries, and automated goal recommendations.
 
 ### 🌐 2. Live Google Books Discovery
@@ -96,7 +96,7 @@ VITE_API_URL=http://localhost:5000
 - `DELETE /api/books/:id` — Remove book from library
 
 ### AI Module Routes (`/api/ai`)
-- `POST /api/ai/recommend` — Generate 5 Gemini AI book recommendations
+- `POST /api/ai/recommend` — Generate 3 Gemini AI next-book recommendations
 - `GET /api/ai/insights` — Generate reading speed and streak insights
 
 ### Discover Routes (`/api/discover`)

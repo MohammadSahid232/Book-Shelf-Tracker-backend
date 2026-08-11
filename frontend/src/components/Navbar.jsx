@@ -6,14 +6,9 @@ import {
   LayoutDashboard,
   Compass,
   Sparkles,
-  Search,
-  Folder,
-  Trophy,
-  Users,
   LogOut,
-  CheckSquare,
-  BookMarked,
-  ShieldCheck,
+  ArrowLeft,
+  CheckSquare
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
@@ -32,8 +27,18 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 border-b border-slate-200/80 dark:border-neutral-800 px-4 md:px-8 py-3 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        {/* Brand Logo & Name */}
-        <Link
+        <div className="flex items-center gap-3">
+          {location.pathname !== '/' && (
+            <button
+              onClick={() => navigate(-1)}
+              className="p-1.5 rounded-xl bg-slate-100/80 dark:bg-neutral-800/80 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-600 dark:text-slate-300 transition-colors"
+              title="Go Back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
+          {/* Brand Logo & Name */}
+          <Link
           to={user?.role === 'admin' ? '/admin/dashboard' : user ? '/library' : '/'}
           className="flex items-center gap-2.5 font-bold text-lg tracking-tight group"
         >
@@ -44,107 +49,67 @@ export default function Navbar() {
             BookShelf<span className="text-purple-600 dark:text-purple-400 font-black ml-0.5">AI</span>
           </span>
         </Link>
+        </div>
 
-        {/* Center Nav Links */}
+        {/* Center Main Nav Links (Clean & Compact) */}
         {user && (
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/70 dark:bg-neutral-800/70 p-1.5 rounded-2xl border border-slate-200/50 dark:border-neutral-700/50 overflow-x-auto scrollbar-hide">
-            <Link
-              to="/library"
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isActive('/library')
-                  ? 'bg-white dark:bg-neutral-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              Library
-            </Link>
-
-            <Link
-              to="/search"
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isActive('/search')
-                  ? 'bg-white dark:bg-neutral-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Search className="w-3.5 h-3.5" />
-              Search
-            </Link>
-
-            <Link
-              to="/my-library"
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isActive('/my-library')
-                  ? 'bg-white dark:bg-neutral-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <BookMarked className="w-3.5 h-3.5" />
-              My Shelf
-            </Link>
-
-            <Link
-              to="/collections"
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isActive('/collections')
-                  ? 'bg-white dark:bg-neutral-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Folder className="w-3.5 h-3.5" />
-              Collections
-            </Link>
-
-            <Link
-              to="/achievements"
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isActive('/achievements')
-                  ? 'bg-white dark:bg-neutral-700 text-amber-500 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-amber-500'
-              }`}
-            >
-              <Trophy className="w-3.5 h-3.5 text-amber-500" />
-              Badges
-            </Link>
-
-            <Link
-              to="/community"
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isActive('/community')
-                  ? 'bg-white dark:bg-neutral-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              Community
-            </Link>
-
-            <Link
-              to="/ai-hub"
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isActive('/ai-hub')
-                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/20'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-purple-400 fill-purple-400/20" />
-              AI Hub
-            </Link>
-
-            {user.role === 'admin' && (
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/70 dark:bg-neutral-800/70 p-1.5 rounded-2xl border border-slate-200/50 dark:border-neutral-700/50">
+            {user.role !== 'admin' && (
               <Link
-                to="/admin/dashboard"
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  isActive('/admin/dashboard')
-                    ? 'bg-red-600 text-white shadow-xs'
-                    : 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20'
+                to="/library"
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  isActive('/library')
+                    ? 'bg-amber-100/60 dark:bg-neutral-800 text-rose-700 dark:text-rose-400 shadow-xs border border-amber-200/50 dark:border-neutral-700'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Admin
+                <BookOpen className="w-4 h-4" />
+                Library
               </Link>
             )}
+
+            {user.role !== 'admin' && (
+              <> 
+                <Link
+                  to="/discover"
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    isActive('/discover')
+                      ? 'bg-amber-100/60 dark:bg-neutral-800 text-rose-700 dark:text-rose-400 shadow-xs border border-amber-200/50 dark:border-neutral-700'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <Compass className="w-4 h-4" />
+                  Discover
+                </Link>
+
+                <Link
+                  to="/tasks"
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    isActive('/tasks')
+                      ? 'bg-amber-100/60 dark:bg-neutral-800 text-rose-700 dark:text-rose-400 shadow-xs border border-amber-200/50 dark:border-neutral-700'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <CheckSquare className="w-4 h-4 text-blue-500" />
+                  Tasks
+                </Link>
+
+                <Link
+                  to="/ai-hub"
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    isActive('/ai-hub')
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/20'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 text-purple-400 fill-purple-400/20" />
+                  AI Recommendations
+                </Link>
+              </>
+            )}
+
+
+
           </nav>
         )}
 

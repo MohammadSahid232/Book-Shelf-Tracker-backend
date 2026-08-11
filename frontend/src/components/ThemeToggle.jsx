@@ -1,48 +1,58 @@
 import { useState, useEffect } from "react";
+import { Sun, Moon } from "lucide-react";
 
 const ThemeToggle = () => {
-  const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem("theme") === "dark");
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem("shelfwise-mode") || localStorage.getItem("theme");
+      if (saved) return saved === "dark";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const root = document.documentElement;
+    const mode = isDarkMode ? "dark" : "light";
+
+    root.setAttribute("data-theme", "reading-room");
+    root.setAttribute("data-mode", mode);
 
     if (isDarkMode) {
       root.classList.add("dark");
       localStorage.setItem("theme", "dark");
-      root.style.setProperty("--color-primary", "#3b82f6");
-      root.style.setProperty("--color-primary-hover", "#2563eb");
-      root.style.setProperty("--color-secondary", "#60a5fa");
-      root.style.setProperty("--color-bg", "#0b1120");
-      root.style.setProperty("--color-surface", "#111827");
-      root.style.setProperty("--color-border", "#1e3a5f");
-      root.style.setProperty("--color-text", "#e2e8f0");
-      root.style.setProperty("--color-text-muted", "#94a3b8");
-      root.style.setProperty("--color-badge-bg", "#1e3a5f");
-      root.style.setProperty("--color-badge-text", "#93c5fd");
-      root.style.setProperty("--color-card-hover", "#1a2744");
+      localStorage.setItem("shelfwise-mode", "dark");
     } else {
       root.classList.remove("dark");
       localStorage.setItem("theme", "light");
-      root.style.setProperty("--color-primary", "#1d4ed8");
-      root.style.setProperty("--color-primary-hover", "#1e40af");
-      root.style.setProperty("--color-secondary", "#3b82f6");
-      root.style.setProperty("--color-bg", "#f0f4ff");
-      root.style.setProperty("--color-surface", "#ffffff");
-      root.style.setProperty("--color-border", "#c7d4f0");
-      root.style.setProperty("--color-text", "#1e2a4a");
-      root.style.setProperty("--color-text-muted", "#64748b");
-      root.style.setProperty("--color-badge-bg", "#dbeafe");
-      root.style.setProperty("--color-badge-text", "#1d4ed8");
-      root.style.setProperty("--color-card-hover", "#eff6ff");
+      localStorage.setItem("shelfwise-mode", "light");
     }
+    localStorage.setItem("shelfwise-theme", "reading-room");
   }, [isDarkMode]);
 
   return (
     <button
       onClick={() => setIsDarkMode(!isDarkMode)}
-      className="theme-toggle-btn"
+      className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs border"
+      style={{
+        backgroundColor: 'var(--bg-raised)',
+        color: 'var(--text-primary)',
+        borderColor: 'var(--line)',
+      }}
+      title={isDarkMode ? "Switch to Reading Room Light Mode" : "Switch to Reading Room Dark Mode"}
     >
-      {isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+      {isDarkMode ? (
+        <>
+          <Sun className="w-4 h-4 text-amber-400 fill-amber-400" />
+          <span>Light Mode</span>
+        </>
+      ) : (
+        <>
+          <Moon className="w-4 h-4 text-rose-500 fill-rose-500/20" />
+          <span>Dark Mode</span>
+        </>
+      )}
     </button>
   );
 };

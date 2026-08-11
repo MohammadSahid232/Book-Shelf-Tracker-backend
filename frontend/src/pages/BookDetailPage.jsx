@@ -115,9 +115,9 @@ export default function BookDetailPage() {
   const handleDownload = async (format = 'pdf') => {
     setDownloading(true);
     try {
-      const { data } = await axios.post(`${BACKEND_URL}/api/downloads/${id}`, { format }, { headers: getAuthHeaders() });
-      window.open(data.url, '_blank');
-      toast.success(`Downloading ${data.title} (${format.toUpperCase()})`);
+      const token = localStorage.getItem('token') || '';
+      window.open(`${BACKEND_URL}/api/downloads/file/${id}.pdf?token=${token}`, '_blank');
+      toast.success(`Downloading ${book.title} (PDF)`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Download failed');
     } finally {
@@ -152,7 +152,7 @@ export default function BookDetailPage() {
 
   const desc = book.description || 'No description available.';
   const shortDesc = desc.length > 400 ? desc.slice(0, 400) + '...' : desc;
-  const hasPdf = !!book.pdfUrl;
+  const hasPdf = true;
   const hasEpub = !!book.epubUrl;
 
   return (
@@ -243,13 +243,13 @@ export default function BookDetailPage() {
                   <BookOpen className="w-4 h-4" /> Read Now
                 </button>
               )}
-              {book.downloadAllowed && hasPdf && (
+              {hasPdf && (
                 <button
                   onClick={() => handleDownload('pdf')}
                   disabled={downloading}
                   className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl text-sm flex items-center gap-2 transition-colors"
                 >
-                  <Download className="w-4 h-4" /> {downloading ? 'Loading…' : 'PDF'}
+                  <Download className="w-4 h-4" /> {downloading ? 'Loading…' : 'Download PDF'}
                 </button>
               )}
               {book.downloadAllowed && hasEpub && (

@@ -1,0 +1,19 @@
+{
+	"id": "prod-environment-bookshelf",
+	"name": "Production",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "https://your-backend-domain.onrender.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment"
+}

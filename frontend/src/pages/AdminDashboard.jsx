@@ -26,7 +26,7 @@ const AdminStatCard = ({ label, value, icon: Icon, color }) => (
 
 // ── Book Table Row ─────────────────────────────────────────────────────────────
 const BookRow = ({ book, onEdit, onDelete, navigate }) => (
-  <tr className="border-b border-slate-100 dark:border-neutral-700/60 hover:bg-slate-50 dark:hover:bg-neutral-800/50 transition-colors">
+  <tr className="border-b border-slate-100 dark:border-neutral-700/60 hover:bg-slate-50/60 dark:hover:bg-neutral-800/50 transition-colors">
     <td className="px-4 py-3">
       <div className="flex items-center gap-3">
         <div className="w-9 h-12 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 overflow-hidden flex-shrink-0">
@@ -52,14 +52,26 @@ const BookRow = ({ book, onEdit, onDelete, navigate }) => (
       </div>
     </td>
     <td className="px-3 py-3">
-      <div className="flex items-center gap-1.5">
-        <button onClick={() => navigate(`/book/${book._id}`)} title="View" className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-lg transition-colors">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => navigate(`/book/${book._id}`)}
+          title="View Book"
+          className="p-1.5 text-slate-500 hover:text-indigo-600 bg-slate-100/80 dark:bg-neutral-800 hover:bg-indigo-50 border border-slate-200/60 dark:border-neutral-700 rounded-xl transition-colors"
+        >
           <Eye className="w-3.5 h-3.5" />
         </button>
-        <button onClick={() => onEdit(book)} title="Edit" className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors">
+        <button
+          onClick={() => onEdit(book)}
+          title="Edit Book"
+          className="p-1.5 text-slate-500 hover:text-blue-600 bg-slate-100/80 dark:bg-neutral-800 hover:bg-blue-50 border border-slate-200/60 dark:border-neutral-700 rounded-xl transition-colors"
+        >
           <Edit3 className="w-3.5 h-3.5" />
         </button>
-        <button onClick={() => onDelete(book._id)} title="Delete" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors">
+        <button
+          onClick={() => onDelete(book._id)}
+          title="Delete Book"
+          className="p-1.5 text-red-600 hover:text-red-700 bg-red-50/80 dark:bg-red-950/40 hover:bg-red-100 border border-red-200/60 dark:border-red-900/50 rounded-xl transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
+        >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -69,10 +81,10 @@ const BookRow = ({ book, onEdit, onDelete, navigate }) => (
 
 // ── User Table Row ─────────────────────────────────────────────────────────────
 const UserRow = ({ user: u, onRoleToggle, onDelete }) => (
-  <tr className="border-b border-slate-100 dark:border-neutral-700/60 hover:bg-slate-50 dark:hover:bg-neutral-800/50 transition-colors">
+  <tr className="border-b border-slate-100 dark:border-neutral-700/60 hover:bg-slate-50/60 dark:hover:bg-neutral-800/50 transition-colors">
     <td className="px-4 py-3">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold shadow-xs">
           {u.first_name?.[0] || '?'}
         </div>
         <div>
@@ -82,22 +94,92 @@ const UserRow = ({ user: u, onRoleToggle, onDelete }) => (
       </div>
     </td>
     <td className="px-3 py-3">
-      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-slate-300'}`}>
+      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400' : 'bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-slate-300'}`}>
         {u.role}
       </span>
     </td>
     <td className="px-3 py-3 text-[10px] text-slate-400">{new Date(u.createdAt).toLocaleDateString()}</td>
     <td className="px-3 py-3">
-      <div className="flex items-center gap-1.5">
-        <button onClick={() => onRoleToggle(u)} className="text-[10px] px-2 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-lg font-bold hover:bg-indigo-100 transition-colors">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onRoleToggle(u)}
+          className="text-[10px] px-2.5 py-1.5 bg-amber-100/70 dark:bg-neutral-800 text-rose-800 dark:text-amber-400 border border-amber-200/60 dark:border-neutral-700 rounded-xl font-bold hover:bg-amber-200/60 transition-colors shadow-2xs cursor-pointer"
+          title={`Change role to ${u.role === 'admin' ? 'user' : 'admin'}`}
+        >
           {u.role === 'admin' ? '→ User' : '→ Admin'}
         </button>
-        <button onClick={() => onDelete(u._id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-          <Trash2 className="w-3.5 h-3.5" />
+        <button
+          onClick={() => onDelete(u._id)}
+          title="Delete User"
+          className="p-1.5 text-red-600 hover:text-red-700 bg-red-50/80 dark:bg-red-950/40 hover:bg-red-100 border border-red-200/60 dark:border-red-900/50 rounded-xl transition-colors flex items-center justify-center cursor-pointer shadow-2xs"
+        >
+          <Trash2 className="w-3.5 h-3.5 text-red-600" />
         </button>
       </div>
     </td>
   </tr>
+);
+
+// ── Review Card / Row ─────────────────────────────────────────────────────────
+const ReviewRow = ({ review: r, onDelete }) => (
+  <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-slate-200/70 dark:border-neutral-700/70 p-4 space-y-3 shadow-xs transition-shadow hover:shadow-md">
+    <div className="flex items-start justify-between gap-3">
+      {/* User Details */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-xs overflow-hidden">
+          {r.user?.avatar ? (
+            <img src={r.user.avatar} alt="" className="w-full h-full object-cover" />
+          ) : (
+            (r.user?.first_name?.[0] || 'U')
+          )}
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-bold text-slate-900 dark:text-white">
+              {r.user?.first_name} {r.user?.last_name}
+            </p>
+            <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md ${r.user?.role === 'admin' ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400' : 'bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-slate-300'}`}>
+              {r.user?.role || 'user'}
+            </span>
+          </div>
+          <p className="text-[10px] text-slate-400">{r.user?.email}</p>
+        </div>
+      </div>
+
+      {/* Action / Rating */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-0.5 bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 rounded-xl border border-amber-200/50 dark:border-amber-900/40">
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          <span className="text-xs font-black text-amber-800 dark:text-amber-300">{r.rating}/5</span>
+        </div>
+        <button
+          onClick={() => onDelete(r._id)}
+          title="Delete Review"
+          className="p-1.5 text-red-600 hover:text-red-700 bg-red-50/80 dark:bg-red-950/40 hover:bg-red-100 border border-red-200/60 dark:border-red-900/50 rounded-xl transition-colors cursor-pointer shadow-2xs"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+
+    {/* Book & Review Content */}
+    <div className="pt-2 border-t border-slate-100 dark:border-neutral-700/60 flex items-start gap-3">
+      {r.book?.coverImage && (
+        <img src={r.book.coverImage} alt="" className="w-8 h-11 object-cover rounded-md flex-shrink-0" />
+      )}
+      <div className="flex-1 min-w-0">
+        <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+          Book: <span className="text-slate-900 dark:text-white font-extrabold">{r.book?.title || 'Unknown Book'}</span> by {r.book?.author || 'Unknown'}
+        </p>
+        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed italic bg-slate-50 dark:bg-neutral-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-neutral-800">
+          "{r.text || 'No written text review provided.'}"
+        </p>
+        <p className="text-[9px] text-slate-400 mt-1.5">
+          Reviewed on {new Date(r.createdAt).toLocaleDateString()} at {new Date(r.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </p>
+      </div>
+    </div>
+  </div>
 );
 
 // ── Main Admin Dashboard ───────────────────────────────────────────────────────
@@ -108,12 +190,15 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [books, setBooks] = useState([]);
   const [users, setUsers] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingBooks, setLoadingBooks] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const [tab, setTab] = useState('overview'); // 'overview' | 'books' | 'users'
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [tab, setTab] = useState('overview'); // 'overview' | 'books' | 'users' | 'reviews'
   const [bookSearch, setBookSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [reviewSearch, setReviewSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
 
@@ -155,16 +240,29 @@ export default function AdminDashboard() {
     }
   }, [BACKEND_URL, userSearch]);
 
+  const fetchReviews = useCallback(async () => {
+    setLoadingReviews(true);
+    try {
+      const { data } = await axios.get(`${BACKEND_URL}/api/admin/reviews?limit=50&search=${reviewSearch}`, { headers });
+      setReviews(data.reviews || []);
+    } catch (err) {
+      toast.error('Failed to load user reviews');
+    } finally {
+      setLoadingReviews(false);
+    }
+  }, [BACKEND_URL, reviewSearch]);
+
   useEffect(() => { fetchStats(); fetchBooks(); }, []);
   useEffect(() => { if (tab === 'users') fetchUsers(); }, [tab]);
+  useEffect(() => { if (tab === 'reviews') fetchReviews(); }, [tab]);
 
   const handleSaveBook = async (formData) => {
     try {
       if (editingBook) {
-        await axios.patch(`${BACKEND_URL}/api/books/${editingBook._id}`, formData, { headers });
+        await axios.patch(`${BACKEND_URL}/api/admin/books/${editingBook._id}`, formData, { headers });
         toast.success('Book updated! ✅');
       } else {
-        await axios.post(`${BACKEND_URL}/api/books`, formData, { headers });
+        await axios.post(`${BACKEND_URL}/api/admin/books`, formData, { headers });
         toast.success('Book added to library! 📚');
       }
       setIsModalOpen(false);
@@ -172,14 +270,14 @@ export default function AdminDashboard() {
       fetchBooks();
       fetchStats();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error saving book');
+      toast.error(err.response?.data?.message || err.response?.data?.error || 'Error saving book');
     }
   };
 
   const handleDeleteBook = async (bookId) => {
     if (!window.confirm('Delete this book from the library?')) return;
     try {
-      await axios.delete(`${BACKEND_URL}/api/books/${bookId}`, { headers });
+      await axios.delete(`${BACKEND_URL}/api/admin/books/${bookId}`, { headers });
       toast.success('Book deleted');
       fetchBooks();
       fetchStats();
@@ -211,10 +309,23 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm('Delete this user review?')) return;
+    try {
+      await axios.delete(`${BACKEND_URL}/api/admin/reviews/${reviewId}`, { headers });
+      toast.success('Review deleted');
+      fetchReviews();
+      fetchStats();
+    } catch (err) {
+      toast.error('Failed to delete review');
+    }
+  };
+
   const TABS = [
     { id: 'overview', label: 'Overview', icon: BarChart2 },
     { id: 'books', label: 'Books', icon: BookOpen },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'reviews', label: 'User Reviews', icon: Star },
   ];
 
   return (
@@ -397,6 +508,40 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+        </motion.div>
+      )}
+
+      {/* ── REVIEWS TAB ── */}
+      {tab === 'reviews' && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                value={reviewSearch}
+                onChange={(e) => setReviewSearch(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && fetchReviews()}
+                placeholder="Search user reviews..."
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <button onClick={fetchReviews} className="px-3 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700">Search</button>
+          </div>
+
+          {loadingReviews ? (
+            <div className="flex items-center justify-center py-12"><Loader className="w-6 h-6 animate-spin text-indigo-500" /></div>
+          ) : reviews.length === 0 ? (
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-slate-200 dark:border-neutral-700 p-12 text-center text-sm text-slate-400">
+              No user reviews found.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {reviews.map((r) => (
+                <ReviewRow key={r._id} review={r} onDelete={handleDeleteReview} />
+              ))}
+            </div>
+          )}
         </motion.div>
       )}
 

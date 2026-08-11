@@ -2,44 +2,117 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  BookOpen, Heart, Download, Bookmark, Star, Clock,
-  CheckCircle, List, Archive, Loader, Plus, Search, BookMarked
+  BookOpen, Heart, Download, Bookmark, Clock,
+  CheckCircle, List, Archive, Loader, Plus, Search, BookMarked,
+  ChevronDown, RotateCcw, BookCheck
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const STATUS_OPTIONS = [
+  { value: 'want to read', label: 'Want to Read', icon: '📖', color: 'text-blue-600' },
+  { value: 'reading',      label: 'Reading',      icon: '📚', color: 'text-amber-600' },
+  { value: 'finished',     label: 'Finished',     icon: '✅', color: 'text-emerald-600' },
+  { value: 'archived',     label: 'Archived',     icon: '📦', color: 'text-slate-500' },
+];
+
+const STATUS_COLORS = {
+  'want to read': 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
+  'reading':      'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
+  'finished':     'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400',
+  'archived':     'bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-slate-400',
+};
+
 // ── Shelf Card ─────────────────────────────────────────────────────────────────
-const ShelfCard = ({ entry, onUpdate, onRemove, navigate }) => {
+const ShelfCard = ({ entry, onUpdate, onRemove, navigate, backendUrl }) => {
   const book = entry.book;
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [updating, setUpdating] = useState(false);
+
   if (!book) return null;
 
-  const STATUS_COLORS = {
-    'want to read': 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400',
-    'reading':      'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400',
-    'finished':     'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400',
-    'archived':     'bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-slate-400',
+  const currentStatus = entry.status || 'want to read';
+
+  const handleStatusChange = async (newStatus) => {
+    if (newStatus === currentStatus) { setShowStatusMenu(false); return; }
+    setUpdating(true);
+    setShowStatusMenu(false);
+    try {
+      await onUpdate(book._id, { status: newStatus });
+      toast.success(`Status changed to "${newStatus}" 📚`);
+    } catch {
+      toast.error('Failed to update status');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-neutral-800/90 rounded-2xl border border-slate-200/70 dark:border-neutral-700/70 p-3 flex gap-3 hover:shadow-md transition-shadow cursor-pointer group"
-      onClick={() => navigate(`/book/${book._id}`)}
+      className="bg-white dark:bg-neutral-800/90 rounded-2xl border border-slate-200/70 dark:border-neutral-700/70 p-3 flex gap-3 hover:shadow-md transition-shadow group relative"
     >
-      <div className="w-14 h-20 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 overflow-hidden flex-shrink-0">
+      {/* Cover */}
+      <div
+        className="w-14 h-20 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 overflow-hidden flex-shrink-0 cursor-pointer"
+        onClick={() => navigate(`/book/${book._id}`)}
+      >
         {book.coverImage
           ? <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover" />
           : <BookOpen className="w-6 h-6 text-indigo-300 m-auto mt-5" />
         }
       </div>
+
+      {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-slate-900 dark:text-white line-clamp-2 leading-snug">{book.title}</p>
+        <p
+          className="text-xs font-bold text-slate-900 dark:text-white line-clamp-2 leading-snug cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+          onClick={() => navigate(`/book/${book._id}`)}
+        >
+          {book.title}
+        </p>
         <p className="text-[10px] text-slate-400 mt-0.5">{book.author}</p>
-        <span className={`inline-block mt-1.5 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${STATUS_COLORS[entry.status] || ''}`}>
-          {entry.status}
-        </span>
+
+        {/* Status badge + dropdown */}
+        <div className="relative mt-1.5 inline-block">
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowStatusMenu((v) => !v); }}
+            disabled={updating}
+            className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full transition-all hover:opacity-80 ${STATUS_COLORS[currentStatus] || ''}`}
+          >
+            {updating ? <Loader className="w-2.5 h-2.5 animate-spin" /> : null}
+            {currentStatus}
+            <ChevronDown className="w-2.5 h-2.5" />
+          </button>
+
+          <AnimatePresence>
+            {showStatusMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                transition={{ duration: 0.12 }}
+                className="absolute left-0 top-full mt-1 z-50 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-xl shadow-xl overflow-hidden min-w-[148px]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {STATUS_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => handleStatusChange(opt.value)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-neutral-700 transition-colors text-left ${opt.value === currentStatus ? 'bg-slate-50 dark:bg-neutral-700/60 font-black' : ''}`}
+                  >
+                    <span>{opt.icon}</span>
+                    <span className={opt.color}>{opt.label}</span>
+                    {opt.value === currentStatus && <span className="ml-auto text-[9px] text-slate-400">Current</span>}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         {entry.readingProgress > 0 && (
           <div className="mt-2">
             <div className="w-full bg-slate-100 dark:bg-neutral-700 rounded-full h-1">
@@ -49,16 +122,25 @@ const ShelfCard = ({ entry, onUpdate, onRemove, navigate }) => {
           </div>
         )}
       </div>
+
+      {/* Action buttons — always visible on hover */}
       <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-        {book.pdfUrl && (
-          <button
-            onClick={() => navigate(`/read/${book._id}`)}
-            className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 hover:bg-indigo-100 transition-colors"
-            title="Read Now"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-          </button>
-        )}
+        <button
+          onClick={() => navigate(`/read/${book._id}`)}
+          className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 hover:bg-indigo-100 transition-colors"
+          title="Read Now"
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => {
+            window.open(`${backendUrl}/api/downloads/file/${book._id}.pdf`, '_blank');
+          }}
+          className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 hover:bg-emerald-100 transition-colors"
+          title="Download PDF"
+        >
+          <Download className="w-3.5 h-3.5" />
+        </button>
         <button
           onClick={() => onRemove(book._id)}
           className="p-1.5 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-500 hover:bg-red-100 transition-colors"
@@ -124,10 +206,23 @@ export default function MyLibraryPage() {
     try {
       await axios.delete(`${BACKEND_URL}/api/shelf/${bookId}`, { headers });
       toast.success('Removed from shelf');
-      fetchData();
+      setShelf((prev) => prev.filter((e) => e.book?._id !== bookId));
     } catch (err) {
       toast.error('Failed to remove');
     }
+  };
+
+  const handleUpdate = async (bookId, updateData) => {
+    const res = await axios.patch(`${BACKEND_URL}/api/shelf/${bookId}`, updateData, { headers });
+    // Optimistically update local shelf state
+    setShelf((prev) =>
+      prev.map((e) =>
+        e.book?._id === bookId
+          ? { ...e, ...updateData, readingProgress: res.data?.readingProgress ?? e.readingProgress }
+          : e
+      )
+    );
+    return res.data;
   };
 
   const TABS = [
@@ -271,7 +366,7 @@ export default function MyLibraryPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredShelf.map((entry) => (
-            <ShelfCard key={entry._id} entry={entry} onRemove={handleRemove} navigate={navigate} />
+            <ShelfCard key={entry._id} entry={entry} onUpdate={handleUpdate} onRemove={handleRemove} navigate={navigate} backendUrl={BACKEND_URL} />
           ))}
         </div>
       )}

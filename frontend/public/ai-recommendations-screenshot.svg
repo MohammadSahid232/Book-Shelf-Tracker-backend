@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">AI Recommendations Page Placeholder</title>
+  <desc id="desc">Illustration of the BookShelf AI recommendations page with three recommendation cards.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)" rx="40" />
+  <rect x="60" y="60" width="1080" height="120" rx="30" fill="#ffffff" fill-opacity="0.12" />
+  <text x="90" y="110" font-family="Inter, sans-serif" font-size="42" fill="#ffffff" font-weight="700">Recommend Next Book</text>
+  <text x="90" y="155" font-family="Inter, sans-serif" font-size="20" fill="#e2e8f0">AI-powered recommendations based on finished books, ratings, and genre preferences.</text>
+  <g transform="translate(80, 210)">
+    <rect x="0" y="0" width="340" height="360" rx="30" fill="#ffffff" fill-opacity="0.16" />
+    <rect x="24" y="24" width="292" height="84" rx="18" fill="#ffffff" fill-opacity="0.3" />
+    <text x="40" y="68" font-family="Inter, sans-serif" font-size="24" fill="#ffffff" font-weight="700">1. Atomic Habits</text>
+    <text x="40" y="100" font-family="Inter, sans-serif" font-size="16" fill="#dbeafe">by James Clear</text>
+    <text x="40" y="140" font-family="Inter, sans-serif" font-size="14" fill="#cbd5e1">A strong match for readers who like productivity and personal growth.</text>
+  </g>
+  <g transform="translate(420, 210)">
+    <rect x="0" y="0" width="340" height="360" rx="30" fill="#ffffff" fill-opacity="0.16" />
+    <rect x="24" y="24" width="292" height="84" rx="18" fill="#ffffff" fill-opacity="0.3" />
+    <text x="40" y="68" font-family="Inter, sans-serif" font-size="24" fill="#ffffff" font-weight="700">2. Deep Work</text>
+    <text x="40" y="100" font-family="Inter, sans-serif" font-size="16" fill="#dbeafe">by Cal Newport</text>
+    <text x="40" y="140" font-family="Inter, sans-serif" font-size="14" fill="#cbd5e1">Suggested for readers who value focus and deliberate practice.</text>
+  </g>
+  <g transform="translate(760, 210)">
+    <rect x="0" y="0" width="340" height="360" rx="30" fill="#ffffff" fill-opacity="0.16" />
+    <rect x="24" y="24" width="292" height="84" rx="18" fill="#ffffff" fill-opacity="0.3" />
+    <text x="40" y="68" font-family="Inter, sans-serif" font-size="24" fill="#ffffff" font-weight="700">3. Project Hail Mary</text>
+    <text x="40" y="100" font-family="Inter, sans-serif" font-size="16" fill="#dbeafe">by Andy Weir</text>
+    <text x="40" y="140" font-family="Inter, sans-serif" font-size="14" fill="#cbd5e1">Great for readers who enjoy science fiction and fast-paced plots.</text>
+  </g>
+</svg>
