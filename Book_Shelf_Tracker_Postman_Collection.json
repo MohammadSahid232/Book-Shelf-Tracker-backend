@@ -5,6 +5,18 @@
 		"description": "Complete Postman collection for Book Shelf Tracker including Gemini AI features, Auth, Books, Tasks, and Library endpoints.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
 	"item": [
 		{
 			"name": "Gemini",
