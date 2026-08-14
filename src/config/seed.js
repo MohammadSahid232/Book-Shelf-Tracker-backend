@@ -1,4 +1,6 @@
 const Book = require('../models/bookModel');
+const User = require('../models/UserModel');
+const bcrypt = require('bcryptjs');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // All pdfUrl values are verified working from the backend (tested via axios).
@@ -18,7 +20,6 @@ const SAMPLE_BOOKS = [
     tags: ['Programming', 'Software Engineering', 'Clean Code', 'Best Practices'],
     readingLevel: 'Intermediate',
     coverImage: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500&q=80',
-    // AlphaGo Zero paper — 20 pages, unique technical PDF
     pdfUrl: 'https://arxiv.org/pdf/1712.01815',
     downloadAllowed: true,
     featured: true,
@@ -41,7 +42,6 @@ const SAMPLE_BOOKS = [
     tags: ['Self Help', 'Productivity', 'Habits', 'Psychology'],
     readingLevel: 'All Ages',
     coverImage: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=80',
-    // GPT-3 paper — 75 pages, comprehensive
     pdfUrl: 'https://arxiv.org/pdf/2005.14165',
     downloadAllowed: true,
     featured: true,
@@ -64,7 +64,6 @@ const SAMPLE_BOOKS = [
     tags: ['Programming', 'Software Architecture', 'Career', 'Refactoring'],
     readingLevel: 'Intermediate',
     coverImage: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=500&q=80',
-    // Dropout paper — 12 pages, unique
     pdfUrl: 'https://arxiv.org/pdf/1207.0580',
     downloadAllowed: true,
     featured: true,
@@ -87,7 +86,6 @@ const SAMPLE_BOOKS = [
     tags: ['Sci-Fi', 'Classic', 'Fantasy', 'Space Opera'],
     readingLevel: 'Advanced',
     coverImage: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&q=80',
-    // GAN original paper — 8 pages, minimal clean layout
     pdfUrl: 'https://arxiv.org/pdf/1406.2661',
     downloadAllowed: true,
     featured: false,
@@ -110,7 +108,6 @@ const SAMPLE_BOOKS = [
     tags: ['Business', 'Startups', 'Entrepreneurship', 'Technology'],
     readingLevel: 'Intermediate',
     coverImage: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=500&q=80',
-    // BERT paper — 16 pages, columnar academic format
     pdfUrl: 'https://arxiv.org/pdf/1810.04805',
     downloadAllowed: true,
     featured: false,
@@ -133,7 +130,6 @@ const SAMPLE_BOOKS = [
     tags: ['Sci-Fi', 'Space', 'Survival', 'Science'],
     readingLevel: 'All Ages',
     coverImage: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=500&q=80',
-    // ResNet paper — 16 pages, clean layout
     pdfUrl: 'https://arxiv.org/pdf/1512.03385',
     downloadAllowed: true,
     featured: true,
@@ -156,7 +152,6 @@ const SAMPLE_BOOKS = [
     tags: ['Productivity', 'Focus', 'Self Help', 'Work'],
     readingLevel: 'All Ages',
     coverImage: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=500&q=80',
-    // AlexNet paper — 9 pages, classic deep learning
     pdfUrl: 'https://proceedings.neurips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf',
     downloadAllowed: true,
     featured: false,
@@ -170,11 +165,26 @@ const SAMPLE_BOOKS = [
 
 const seedDatabase = async () => {
   try {
-    const count = await Book.countDocuments();
-    if (count === 0) {
+    const bookCount = await Book.countDocuments();
+    if (bookCount === 0) {
       console.log('🌱 Seeding initial library books...');
       await Book.insertMany(SAMPLE_BOOKS);
       console.log('✅ Library seeded with 7 initial books!');
+    }
+
+    const adminUser = await User.findOne({ email: 'admin@bookshelf.com' });
+    if (!adminUser) {
+      console.log('🌱 Seeding Admin User account...');
+      const hashedPassword = await bcrypt.hash('Admin@12345', 10);
+      await User.create({
+        first_name: 'System',
+        last_name: 'Admin',
+        email: 'admin@bookshelf.com',
+        password: hashedPassword,
+        role: 'admin',
+        bio: 'Administrator account for platform management.',
+      });
+      console.log('✅ Admin user (admin@bookshelf.com) created successfully!');
     }
   } catch (err) {
     console.error('⚠️ Seed error:', err.message);
