@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const passport = require('passport');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 require('./config/passport');
 
 // ── Existing Routes ────────────────────────────────────────────────────────────
@@ -73,6 +74,9 @@ app.use(
     secret: process.env.JWT_SECRET || 'supersecretkey',
     resave: false,
     saveUninitialized: false,
+    store: process.env.MONGO_URI
+      ? MongoStore.create({ mongoUrl: process.env.MONGO_URI })
+      : undefined,
   })
 );
 app.use(passport.initialize());
